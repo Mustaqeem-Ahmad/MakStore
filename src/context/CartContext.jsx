@@ -1,66 +1,86 @@
-// context/CartContext.jsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
-  const [cartItem, setCartItem] = useState([]);
+  // ✅ Load from localStorage initially
+  const [cartItems, setCartItems] = useState(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+
+  // ✅ Save to localStorage whenever cart changes
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product) => {
-    const itemInCart = cartItem.find((item) => item.id === product.id);
-
-    if (itemInCart) {
-      const updatedCart = cartItem.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
+    setCartItems((prevCart) => {
+      const itemInCart = prevCart.find(
+        (item) => item.id === product.id
       );
-      setCartItem(updatedCart);
-      toast.success("Product quantity increased!");
-    } else {
-      // Ensure image key exists
-      const newProduct = {
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        image: product.image || product.thumbnail, // fallback for DummyJSON
-        quantity: 1,
-      };
-      setCartItem([...cartItem, newProduct]);
+
+      if (itemInCart) {
+        toast.success("Product quantity increased!");
+        return prevCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+
       toast.success("Product added to cart!");
-    }
+      return [
+        ...prevCart,
+        {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          image: product.image || product.thumbnail,
+          quantity: 1,
+        },
+      ];
+    });
   };
 
-  const updateQuantity = (cartItem, productId, action) => {
-    setCartItem(
-      cartItem
+  const updateQuantity = (productId, action) => {
+    setCartItems((prevCart) =>
+      prevCart
         .map((item) => {
           if (item.id === productId) {
             let newQty = item.quantity;
-            if (action === "increase") newQty += 1;
-            if (action === "decrease") newQty -= 1;
-            toast.success(
-              action === "increase"
-                ? "Product quantity increased!"
-                : "Product quantity decreased!"
-            );
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
+
+            if (action === "increase") newQty++;
+            if (action === "decrease") newQty--;
+
+            if (newQty > 0) {
+              return { ...item, quantity: newQty };
+            }
+
+            return null;
           }
           return item;
         })
-        .filter((item) => item != null)
+        .filter(Boolean)
     );
   };
 
-  const deletCartItem = (productId) => {
-    setCartItem(cartItem.filter((item) => item.id !== productId));
+  const deleteCartItem = (productId) => {
+    setCartItems((prevCart) =>
+      prevCart.filter((item) => item.id !== productId)
+    );
     toast.success("Product removed from cart!");
   };
 
   return (
     <CartContext.Provider
-      value={{ cartItem, setCartItem, addToCart, updateQuantity, deletCartItem }}
+      value={{
+        cartItems,
+        addToCart,
+        updateQuantity,
+        deleteCartItem,
+      }}
     >
       {children}
     </CartContext.Provider>

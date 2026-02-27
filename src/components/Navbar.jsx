@@ -10,7 +10,8 @@ import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
 import ResponsiveMenu from "./ResponsiveMenu";
 
 const Navbar = () => {
-  const { cartItem } = useCart();
+  // ✅ updated name
+  const { cartItems } = useCart();
 
   const [location, setLocation] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -28,17 +29,21 @@ const Navbar = () => {
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        // Use OpenStreetMap Nominatim API to get city/state
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
         );
         const data = await res.json();
 
         setLocation({
-          city: data.address.city || data.address.town || data.address.village || "Unknown",
+          city:
+            data.address.city ||
+            data.address.town ||
+            data.address.village ||
+            "Unknown",
           state: data.address.state || "Unknown",
         });
-        setOpenDropdown(false); // auto-close after setting
+
+        setOpenDropdown(false);
       },
       (error) => {
         console.error(error);
@@ -98,44 +103,35 @@ const Navbar = () => {
         {/* Menu Section */}
         <nav className="flex items-center font-[poppins] justify-between gap-6">
           <ul className="md:flex hidden items-center text-lg font-semibold gap-6 text-black">
-            <NavLink
-              to={"/"}
-              className={({ isActive }) =>
-                isActive
-                  ? "border-b-2 border-pink-500 transition-all duration-200"
-                  : "text-zinc-600"
-              }
-            >
+            <NavLink to={"/"} className={({ isActive }) =>
+              isActive
+                ? "border-b-2 border-pink-500 transition-all duration-200"
+                : "text-zinc-600"
+            }>
               <li>Home</li>
             </NavLink>
-            <NavLink
-              to={"/products"}
-              className={({ isActive }) =>
-                isActive
-                  ? "border-b-2 border-pink-500 transition-all duration-200"
-                  : "text-zinc-600"
-              }
-            >
+
+            <NavLink to={"/products"} className={({ isActive }) =>
+              isActive
+                ? "border-b-2 border-pink-500 transition-all duration-200"
+                : "text-zinc-600"
+            }>
               <li>Products</li>
             </NavLink>
-            <NavLink
-              to={"/about"}
-              className={({ isActive }) =>
-                isActive
-                  ? "border-b-2 border-pink-500 transition-all duration-200"
-                  : "text-zinc-600"
-              }
-            >
+
+            <NavLink to={"/about"} className={({ isActive }) =>
+              isActive
+                ? "border-b-2 border-pink-500 transition-all duration-200"
+                : "text-zinc-600"
+            }>
               <li>About Us</li>
             </NavLink>
-            <NavLink
-              to={"/contact"}
-              className={({ isActive }) =>
-                isActive
-                  ? "border-b-2 border-pink-500 transition-all duration-200"
-                  : "text-zinc-600"
-              }
-            >
+
+            <NavLink to={"/contact"} className={({ isActive }) =>
+              isActive
+                ? "border-b-2 border-pink-500 transition-all duration-200"
+                : "text-zinc-600"
+            }>
               <li>Contact Us</li>
             </NavLink>
           </ul>
@@ -144,7 +140,7 @@ const Navbar = () => {
           <Link className="relative" to={"/cart"}>
             <IoCartOutline className="h-7 w-7" />
             <span className="px-2 absolute -top-3 -right-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full">
-              {cartItem.length}
+              {cartItems?.length || 0}
             </span>
           </Link>
 
@@ -166,6 +162,7 @@ const Navbar = () => {
           )}
         </nav>
       </div>
+
       <ResponsiveMenu openNav={openNav} setOpenNav={setOpenNav} />
     </div>
   );
