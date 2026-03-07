@@ -11,61 +11,76 @@ const Carousel = () => {
 
   if (loading) return null;
 
-  // sirf top 8 products show
-  const carouselProducts = data?.slice(0, 8);
+  const carouselProducts = data?.slice(0, 6);
 
   const settings = {
-    dots: false,
+    dots: true,
     autoplay: true,
-    autoplaySpeed: 2500,
+    autoplaySpeed: 3000,
     infinite: true,
-    speed: 600,
+    speed: 700,
     slidesToShow: 1,
     slidesToScroll: 1,
+    arrows: false,
+    pauseOnHover: true,
   };
 
   return (
-    <div>
+    <div className="bg-linear-to-r from-[#0f0c29] via-[#302b63] to-[#24243e]">
+
       <Slider {...settings}>
         {carouselProducts?.map((item) => (
-          <div key={item.id} className="bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#24243e]">
-            <div className="flex flex-col md:flex-row justify-center items-center h-[600px] px-6 gap-10">
+          <div key={item.id}>
+            
+            <div className="max-w-7xl mx-auto px-6 py-20 flex flex-col md:flex-row items-center justify-between gap-12 min-h-137.5">
 
               {/* LEFT CONTENT */}
-              <div className="space-y-4">
-                <h3 className="text-pink-500 font-semibold text-sm uppercase">
+              <div className="space-y-6 max-w-xl">
+
+                <h3 className="text-pink-400 font-semibold uppercase text-sm tracking-wide">
                   {item.category}
                 </h3>
 
-                <h1 className="text-3xl md:text-4xl font-bold text-white max-w-[500px]">
+                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
                   {item.title}
                 </h1>
 
-                <p className="text-gray-400 max-w-[500px] line-clamp-3">
+                <p className="text-gray-300 text-lg line-clamp-3">
                   {item.description}
                 </p>
 
                 <button
                   onClick={() => addToCart(item)}
-                  className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-red-500 hover:to-pink-500 px-4 py-2 rounded-md text-white  font-semibold"
+                  className="bg-linear-to-r from-pink-500 to-red-500
+                  px-6 py-3 rounded-xl text-white font-semibold
+                  hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40
+                  transition duration-300"
                 >
                   Shop Now
                 </button>
+
               </div>
 
               {/* RIGHT IMAGE */}
-              <div>
+              <div className="relative flex justify-center items-center">
+
+                {/* glow */}
+                <div className="absolute w-72 h-72 bg-pink-500/30 blur-3xl rounded-full"></div>
+
                 <img
-                  src={item.thumbnail}   // ✅ IMPORTANT CHANGE
+                  src={item.thumbnail}
                   alt={item.title}
-                  className="w-[400px] h-[400px] object-contain rounded-full  hover:scale-105 transition-all duration-300"
+                  className="relative w-80 md:w-96 object-contain animate-float"
                 />
+
               </div>
 
             </div>
+
           </div>
         ))}
       </Slider>
+
     </div>
   );
 };

@@ -23,7 +23,7 @@ const Products = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Reset page when filters change
+  // reset page on filter change
   useEffect(() => {
     setPage(1);
   }, [search, category, brand, priceRange]);
@@ -43,22 +43,25 @@ const Products = () => {
     window.scrollTo(0, 0);
   };
 
-  // Memoized filtering (performance optimized)
+  // filtering
   const filteredData = useMemo(() => {
-    return data.filter((item) =>
-      item.title?.toLowerCase().includes(search.toLowerCase()) &&
-      (category === "All" || item.category === category) &&
-      (brand === "All" || item.brand === brand) &&
-      item.price >= priceRange[0] &&
-      item.price <= priceRange[1]
+    return data.filter(
+      (item) =>
+        item.title?.toLowerCase().includes(search.toLowerCase()) &&
+        (category === "All" || item.category === category) &&
+        (brand === "All" || item.brand === brand) &&
+        item.price >= priceRange[0] &&
+        item.price <= priceRange[1]
     );
   }, [data, search, category, brand, priceRange]);
 
   const dynamicPage = Math.ceil(filteredData.length / 12);
 
   return (
-    <div>
-      <div className="max-w-6xl mx-auto px-4 mb-10">
+    <div className="bg-gray-50 min-h-screen">
+
+      <div className="max-w-7xl mx-auto px-4 py-10">
+
         <MobileFilter
           openFilter={openFilter}
           setOpenFilter={setOpenFilter}
@@ -75,50 +78,79 @@ const Products = () => {
         />
 
         {loading ? (
-          <div className="flex items-center justify-center h-[400px]">
-            <video muted autoPlay loop>
+          <div className="flex items-center justify-center h-125">
+            <video muted autoPlay loop className="w-40">
               <source src={Loading} type="video/webm" />
             </video>
           </div>
         ) : (
-          <div className="flex gap-8">
-            <FilterSection
-              search={search}
-              setSearch={setSearch}
-              brand={brand}
-              setBrand={setBrand}
-              priceRange={priceRange}
-              setPriceRange={setPriceRange}
-              category={category}
-              setCategory={setCategory}
-            />
+          <div className="flex gap-10">
 
-            {filteredData.length > 0 ? (
-              <div className="flex flex-col items-center justify-center w-full">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-7 mt-10 w-full">
-                  {filteredData
-                    .slice(page * 12 - 12, page * 12)
-                    .map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
+            {/* Sidebar Filter */}
+
+            <div className="hidden lg:block w-65 sticky top-24 h-fit bg-white  rounded-xl shadow-md">
+              <FilterSection
+                search={search}
+                setSearch={setSearch}
+                brand={brand}
+                setBrand={setBrand}
+                priceRange={priceRange}
+                setPriceRange={setPriceRange}
+                category={category}
+                setCategory={setCategory}
+              />
+            </div>
+
+            {/* Products */}
+
+            <div className="flex flex-col w-full">
+
+              {/* Top Bar */}
+
+              <div className="flex items-center justify-between mb-6">
+
+                <h2 className="text-2xl font-semibold text-gray-800">
+                  Products
+                </h2>
+
+                <p className="text-gray-500">
+                  {filteredData.length} items found
+                </p>
+
+              </div>
+
+              {filteredData.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+                    {filteredData
+                      .slice(page * 12 - 12, page * 12)
+                      .map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                        />
+                      ))}
+
+                  </div>
+
+                  {dynamicPage > 1 && (
+                    <div className="mt-10 flex justify-center">
+                      <Pagination
+                        pageHandler={pageHandler}
+                        page={page}
+                        dynamicPage={dynamicPage}
                       />
-                    ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-125">
+                  <Lottie animationData={notfound} className="w-87.5" />
                 </div>
+              )}
+            </div>
 
-                {dynamicPage > 1 && (
-                  <Pagination
-                    pageHandler={pageHandler}
-                    page={page}
-                    dynamicPage={dynamicPage}
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center w-full h-[500px]">
-                <Lottie animationData={notfound} className="w-[400px]" />
-              </div>
-            )}
           </div>
         )}
       </div>

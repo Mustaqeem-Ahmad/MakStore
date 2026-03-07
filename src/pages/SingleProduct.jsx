@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Loading from "../assets/Loading4.webm";
 import Breadcrum from "../components/Breadcrum";
-import { Check } from "lucide-react";
+import { Star, Minus, Plus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
 const SingleProduct = () => {
@@ -13,17 +13,20 @@ const SingleProduct = () => {
   const [singleProduct, setSingleProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState("");
 
   const getSingleProduct = async () => {
     try {
       setLoading(true);
+
       const res = await axios.get(
         `https://dummyjson.com/products/${id}`
       );
 
-      setSingleProduct(res.data); // ✅ direct data (DummyJSON)
+      setSingleProduct(res.data);
+      setActiveImage(res.data.thumbnail);
     } catch (error) {
-      console.log("Error fetching product:", error);
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -53,71 +56,155 @@ const SingleProduct = () => {
   );
 
   return (
-    <div className="px-4 pb-10">
+    <div className="px-4 pb-16 bg-gray-50">
+
       <Breadcrum title={singleProduct.title} />
 
-      <div className="max-w-6xl mx-auto md:p-6 grid grid-cols-1 md:grid-cols-2 gap-10">
-        
-        {/* Product Image */}
-        <div className="w-full">
-          <img
-            src={singleProduct.thumbnail} // ✅ thumbnail for DummyJSON
-            alt={singleProduct.title}
-            className="rounded-2xl w-full object-contain"
-          />
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 mt-8">
+
+        {/* LEFT SIDE - IMAGE */}
+
+        <div className="flex flex-col gap-4 sticky top-24 h-fit">
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <img
+              src={activeImage}
+              alt={singleProduct.title}
+              className="w-full object-contain h-105"
+            />
+          </div>
+
+          {/* Image Gallery */}
+
+          <div className="flex gap-3">
+
+            {singleProduct.images?.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                onClick={() => setActiveImage(img)}
+                className="w-20 h-20 object-cover rounded-lg cursor-pointer border hover:border-red-500"
+              />
+            ))}
+
+          </div>
         </div>
 
-        {/* Product Details */}
+        {/* RIGHT SIDE */}
+
         <div className="flex flex-col gap-6">
-          
-          <h1 className="md:text-3xl text-xl text-gray-800 font-bold">
+
+          <h1 className="text-3xl font-bold text-gray-800">
             {singleProduct.title}
           </h1>
 
-          <div className="text-gray-600">
+          <div className="text-gray-500">
             {singleProduct.brand?.toUpperCase()} /{" "}
             {singleProduct.category?.toUpperCase()}
           </div>
 
-          {/* Price Section */}
-          <div>
-            <p className="text-2xl font-bold text-red-500">
-              ${singleProduct.price}
-              <span className="text-gray-600 line-through ml-3 text-lg">
-                ${originalPrice}
-              </span>
-              <span className="bg-gradient-to-r from-pink-500 to-red-500 px-4 ml-5 py-1 rounded-full font-semibold text-white text-sm">
-                {Math.round(singleProduct.discountPercentage)}% OFF
-              </span>
-            </p>
+          {/* Rating */}
+
+          <div className="flex items-center gap-2 text-yellow-500">
+
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                size={18}
+                fill={
+                  i < Math.round(singleProduct.rating)
+                    ? "currentColor"
+                    : "none"
+                }
+              />
+            ))}
+
+            <span className="text-gray-600 text-sm">
+              ({singleProduct.rating})
+            </span>
+
           </div>
 
-          <p className="text-gray-500">
+          {/* Price */}
+
+          <div className="flex items-center gap-4">
+
+            <span className="text-3xl font-bold text-red-500">
+              ${singleProduct.price}
+            </span>
+
+            <span className="line-through text-gray-500">
+              ${originalPrice}
+            </span>
+
+            <span className="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+              {Math.round(singleProduct.discountPercentage)}% OFF
+            </span>
+
+          </div>
+
+          {/* Stock */}
+
+          <div className="text-green-600 font-medium">
+            {singleProduct.stock > 0
+              ? `In Stock (${singleProduct.stock})`
+              : "Out of Stock"}
+          </div>
+
+          {/* Description */}
+
+          <p className="text-gray-600 leading-relaxed">
             {singleProduct.description}
           </p>
 
-          {/* Quantity Selector */}
+          {/* Quantity */}
+
           <div className="flex items-center gap-4">
-            <label className="text-gray-700 font-medium">
-              Quantity:
-            </label>
-            <input
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="w-24 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
+
+            <span className="font-medium">Quantity</span>
+
+            <div className="flex items-center border rounded-lg">
+
+              <button
+                onClick={() =>
+                  quantity > 1 && setQuantity(quantity - 1)
+                }
+                className="px-3 py-2 hover:bg-gray-100"
+              >
+                <Minus size={18} />
+              </button>
+
+              <span className="px-4">{quantity}</span>
+
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="px-3 py-2 hover:bg-gray-100"
+              >
+                <Plus size={18} />
+              </button>
+
+            </div>
+
           </div>
 
-          {/* Add to Cart */}
-          <button
-            onClick={() => addToCart({ ...singleProduct, quantity })}
-            className="group bg-gradient-to-r from-pink-500 to-red-500 px-4 py-2 font-semibold w-44 rounded-md flex items-center justify-center gap-3 text-white hover:opacity-90 transition"
-          >
-            <Check className="h-5 w-5 hidden group-hover:block" />
-            BUY NOW
-          </button>
+          {/* Buttons */}
+
+          <div className="flex gap-4">
+
+            <button
+              onClick={() =>
+                addToCart({ ...singleProduct, quantity })
+              }
+              className="bg-linear-to-r from-pink-500 to-red-500 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transition"
+            >
+              Add to Cart
+            </button>
+
+            <button className="border border-gray-300 px-8 py-3 rounded-xl hover:bg-gray-100 transition">
+              Buy Now
+            </button>
+
+          </div>
         </div>
       </div>
     </div>

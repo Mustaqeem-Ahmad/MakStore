@@ -9,7 +9,7 @@ const ResponsiveMenu = ({ openNav, setOpenNav }) => {
   return (
     <div
       className={`${
-        openNav ? "left-0" : "-left-[100%]"
+        openNav ? "left-0" : "-left-full"
       } fixed bottom-0 top-0 z-20 flex flex-col h-screen w-[75%] justify-between bg-white px-8 pb-6 pt-16 text-black md:hidden transition-all duration-300 rounded-r-xl shadow-md `}
     >
       <div>

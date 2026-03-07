@@ -10,7 +10,7 @@ import { HiMenuAlt1, HiMenuAlt3 } from "react-icons/hi";
 import ResponsiveMenu from "./ResponsiveMenu";
 
 const Navbar = () => {
-  // ✅ updated name
+
   const { cartItems } = useCart();
 
   const [location, setLocation] = useState(null);
@@ -21,150 +21,184 @@ const Navbar = () => {
 
   const getLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation not supported by your browser");
+      alert("Geolocation not supported");
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
+    navigator.geolocation.getCurrentPosition(async (position) => {
 
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-        );
-        const data = await res.json();
+      const { latitude, longitude } = position.coords;
 
-        setLocation({
-          city:
-            data.address.city ||
-            data.address.town ||
-            data.address.village ||
-            "Unknown",
-          state: data.address.state || "Unknown",
-        });
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
 
-        setOpenDropdown(false);
-      },
-      (error) => {
-        console.error(error);
-        alert("Unable to fetch location");
-      }
-    );
+      const data = await res.json();
+
+      setLocation({
+        city: data.address.city || data.address.town || data.address.village || "Unknown",
+        state: data.address.state || "Unknown",
+      });
+
+      setOpenDropdown(false);
+
+    });
   };
 
   return (
-    <div className="bg-white py-3 px-4 md:px-0 shadow-2xl">
-      <div className="max-w-7xl w-full mx-auto flex items-center justify-between">
-        {/* Logo Section */}
-        <div className="flex items-center gap-7">
-          <Link to={"/"}>
-            <h1 className="text-3xl font-semibold font-[Orbitron]">
-              <span className="bg-gradient-to-r from-pink-500 to-[#000] bg-clip-text text-transparent">
+
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-200">
+
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+
+        {/* LEFT */}
+        <div className="flex items-center gap-8">
+
+          {/* Logo */}
+          <Link to="/">
+            <h1 className="text-3xl font-bold font-[Orbitron] tracking-wide">
+              <span className="bg-linear-to-r from-pink-500 to-black bg-clip-text text-transparent">
                 MakStore
               </span>
             </h1>
           </Link>
 
           {/* Location */}
-          <div className="md:flex hidden items-center gap-1 cursor-pointer text-gray-700">
-            <MapPin className="text-pink-500" />
-            <span className="font-semibold">
+          <div className="hidden md:flex items-center gap-2 text-gray-700 cursor-pointer relative">
+
+            <MapPin className="text-pink-500" size={20} />
+
+            <span className="font-medium text-sm">
               {location ? (
-                <div className="-space-y-1 text-sm">
+                <div className="leading-tight">
                   <p>{location.city}</p>
-                  <p>{location.state}</p>
+                  <p className="text-xs text-gray-500">{location.state}</p>
                 </div>
               ) : (
                 "Add Address"
               )}
             </span>
-            <FaCaretDown onClick={toggleDropdown} />
+
+            <FaCaretDown onClick={toggleDropdown} className="text-gray-500"/>
+
+            {/* Dropdown */}
+            {openDropdown && (
+
+              <div className="absolute top-12 left-0 w-64 bg-white shadow-xl rounded-xl p-4 border">
+
+                <div className="flex justify-between items-center mb-3">
+
+                  <h3 className="font-semibold text-lg">
+                    Change Location
+                  </h3>
+
+                  <CgClose
+                    onClick={toggleDropdown}
+                    className="cursor-pointer"
+                  />
+
+                </div>
+
+                <button
+                  onClick={getLocation}
+                  className="w-full bg-linear-to-r from-pink-500 to-red-500 text-white py-2 rounded-lg font-semibold hover:scale-105 transition"
+                >
+                  Use Current Location
+                </button>
+
+              </div>
+
+            )}
+
           </div>
 
-          {/* Dropdown */}
-          {openDropdown && (
-            <div className="w-60 h-max bg-white shadow-2xl fixed top-20 left-[20rem] rounded-md p-3 z-50 border-2 border-gray-200">
-              <h1 className="font-semibold mb-4 text-xl flex justify-between">
-                Change Location
-                <span onClick={toggleDropdown} className="mt-2 cursor-pointer">
-                  <CgClose />
-                </span>
-              </h1>
-              <button
-                onClick={getLocation}
-                className="bg-pink-500 hover:bg-pink-600 hover:text-black px-3 py-1 rounded-md text-white font-semibold cursor-pointer"
-              >
-                Set Location
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Menu Section */}
-        <nav className="flex items-center font-[poppins] justify-between gap-6">
-          <ul className="md:flex hidden items-center text-lg font-semibold gap-6 text-black">
-            <NavLink to={"/"} className={({ isActive }) =>
-              isActive
-                ? "border-b-2 border-pink-500 transition-all duration-200"
-                : "text-zinc-600"
-            }>
-              <li>Home</li>
-            </NavLink>
+        {/* CENTER MENU */}
+        <ul className="hidden md:flex items-center gap-8 font-medium">
 
-            <NavLink to={"/products"} className={({ isActive }) =>
-              isActive
-                ? "border-b-2 border-pink-500 transition-all duration-200"
-                : "text-zinc-600"
-            }>
-              <li>Products</li>
-            </NavLink>
+          <NavLink to="/" className={({ isActive }) =>
+            isActive
+              ? "text-black border-b-2 border-pink-500 pb-1"
+              : "text-gray-600 hover:text-black transition"
+          }>
+            Home
+          </NavLink>
 
-            <NavLink to={"/about"} className={({ isActive }) =>
-              isActive
-                ? "border-b-2 border-pink-500 transition-all duration-200"
-                : "text-zinc-600"
-            }>
-              <li>About Us</li>
-            </NavLink>
+          <NavLink to="/products" className={({ isActive }) =>
+            isActive
+              ? "text-black border-b-2 border-pink-500 pb-1"
+              : "text-gray-600 hover:text-black transition"
+          }>
+            Products
+          </NavLink>
 
-            <NavLink to={"/contact"} className={({ isActive }) =>
-              isActive
-                ? "border-b-2 border-pink-500 transition-all duration-200"
-                : "text-zinc-600"
-            }>
-              <li>Contact Us</li>
-            </NavLink>
-          </ul>
+          <NavLink to="/about" className={({ isActive }) =>
+            isActive
+              ? "text-black border-b-2 border-pink-500 pb-1"
+              : "text-gray-600 hover:text-black transition"
+          }>
+            About
+          </NavLink>
+
+          <NavLink to="/contact" className={({ isActive }) =>
+            isActive
+              ? "text-black border-b-2 border-pink-500 pb-1"
+              : "text-gray-600 hover:text-black transition"
+          }>
+            Contact
+          </NavLink>
+
+        </ul>
+
+        {/* RIGHT */}
+        <div className="flex items-center gap-6">
 
           {/* Cart */}
-          <Link className="relative" to={"/cart"}>
-            <IoCartOutline className="h-7 w-7" />
-            <span className="px-2 absolute -top-3 -right-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full">
+          <Link to="/cart" className="relative">
+
+            <IoCartOutline className="h-7 w-7 text-gray-700 hover:text-black transition" />
+
+            <span className="absolute -top-2 -right-2 bg-linear-to-r from-pink-500 to-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
               {cartItems?.length || 0}
             </span>
+
           </Link>
 
-          {/* User Buttons */}
-          <div className="clrk hidden md:block">
+          {/* Auth */}
+          <div className="hidden md:block">
+
             <SignedOut>
-              <SignInButton className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-red-600 hover:to-pink-600 px-4 py-1 ml-2 rounded-md text-white font-semibold cursor-pointer" />
+              <SignInButton className="bg-linear-to-r from-pink-500 to-red-500 text-white px-4 py-1 rounded-lg font-semibold hover:scale-105 transition cursor-pointer"/>
             </SignedOut>
+
             <SignedIn>
               <UserButton />
             </SignedIn>
+
           </div>
 
-          {/* Mobile Menu Icon */}
+          {/* Mobile menu */}
           {openNav ? (
-            <HiMenuAlt3 onClick={() => setOpenNav(false)} className="h-7 w-7 md:hidden" />
+            <HiMenuAlt3
+              onClick={() => setOpenNav(false)}
+              className="h-7 w-7 md:hidden cursor-pointer"
+            />
           ) : (
-            <HiMenuAlt1 onClick={() => setOpenNav(true)} className="h-7 w-7 md:hidden" />
+            <HiMenuAlt1
+              onClick={() => setOpenNav(true)}
+              className="h-7 w-7 md:hidden cursor-pointer"
+            />
           )}
-        </nav>
+
+        </div>
+
       </div>
 
       <ResponsiveMenu openNav={openNav} setOpenNav={setOpenNav} />
-    </div>
+
+    </header>
+
   );
 };
 

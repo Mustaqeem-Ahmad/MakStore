@@ -1,61 +1,45 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import Loading from "../assets/Loading4.webm"
-import { ChevronLeft } from 'lucide-react'
-import ProductListView from '../components/ProductListView'
+import { Clock, Lock, RotateCcw, Truck } from "lucide-react";
+import React from "react";
 
-const CategoryProduct = () => {
+const features = [
+  { icon: Truck, text: "Free Shipping", subtext: "On orders over $100" },
+  { icon: Lock, text: "Secure Payment", subtext: "100% protected payments" },
+  { icon: RotateCcw, text: "Easy Returns", subtext: "30-day return policy" },
+  { icon: Clock, text: "24/7 Support", subtext: "Dedicated customer service" },
+];
 
-    const [searchData, setSearchData] = useState([])
-
-const params = useParams()
-
-const navigate = useNavigate()
-
-
-const category = params.category
-
-const getFilterData= async ()=>{
-     try {
-
-        const res = await axios.get(`https://fakestoreapi.in/api/products/category?type=${category}`)
-
-        const data = res.data.products
-        setSearchData(data)
-        
-     } catch (error) {
-        console.log(error);
-     }
-
-}
-
-useEffect(() => {
-  getFilterData()
-  window.scrollTo(0,0)    // page open ho to top se
-}, [])
-
-
-
+const Features = () => {
   return (
-    <div>
-        {searchData.length > 0 ? (
-            <div className='max-w-6xl px-4 mx-auto my-10'>
-                <button onClick={()=>navigate('/')} className='bg-[#101828] mb-5 text-white px-3 py-2 rounded-md cursor-pointer flex gap-1 items-center'><ChevronLeft/> Back</button>
+    <div className="bg-linear-to-b from-white to-gray-100 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
 
-                {searchData.map((product,index)=>{
-                  return <ProductListView key={index} product={product} />
-                })}
-            </div>
-        ) : (
-            <div className='flex items-center justify-center h-[400px]'>
-                <video muted autoPlay loop>
-                    <source src={Loading} type='video/webm' />
-                </video>
-            </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+          {features.map((feature, index) => {
+            return (
+              <div
+                key={index}
+                className="group bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition duration-300 flex items-center gap-4"
+              >
+                <div className="p-3 rounded-lg bg-pink-100 group-hover:bg-pink-500 transition">
+                  <feature.icon className="h-6 w-6 text-pink-600 group-hover:text-white" />
+                </div>
+
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {feature.text}
+                  </p>
+                  <p className="text-sm text-gray-500">{feature.subtext}</p>
+                </div>
+              </div>
+            );
+          })}
+
+        </div>
+
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryProduct
+export default Features;

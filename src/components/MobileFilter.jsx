@@ -96,7 +96,7 @@ const MobileFilter = ({
               setPriceRange([0, 5000]);
               setOpenFilter(false);
             }}
-            className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-red-600 hover:to-pink-600 px-3 my-5 cursor-pointer py-2 w-full text-white rounded-md font-semibold"
+            className="bg-linear-to-r from-pink-500 to-red-500 hover:from-red-600 hover:to-pink-600 px-3 my-5 cursor-pointer py-2 w-full text-white rounded-md font-semibold"
           >
             Reset Filters
           </button>
