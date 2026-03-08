@@ -1,26 +1,44 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import Home from '../pages/Home'
-import Products from '../pages/Products'
-import About from '../pages/About'
-import Contact from '../pages/Contact'
-import Cart from '../pages/Cart'
-import SingleProduct from '../pages/SingleProduct'
-import CategoryProduct from '../pages/CategoryProduct'
-import ProtectedRoute from '../components/ProtectedRoute'
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import Home from "../pages/Home";
+import Products from "../pages/Products";
+import About from "../pages/About";
+import Contact from "../pages/Contact";
+import Cart from "../pages/Cart";
+import SingleProduct from "../pages/SingleProduct";
+import CategoryProduct from "../pages/CategoryProduct";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { SignIn } from "@clerk/clerk-react";
 
-const AllRoutes = ({location,getLocation}) => {
+const AllRoutes = ({ location, getLocation }) => {
   return (
     <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/products' element={<Products />} />
-        <Route path='/category/:category' element={<CategoryProduct/>} />
-        <Route path='/products/:id' element={<SingleProduct />} />
-        <Route path='/cart' element={<ProtectedRoute> <Cart location={location} getLocation={getLocation} /></ProtectedRoute>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/products" element={<Products />} />
+      <Route path="/category/:category" element={<CategoryProduct />} />
+      <Route path="/products/:id" element={<SingleProduct />} />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            {" "}
+            <Cart location={location} getLocation={getLocation} />
+          </ProtectedRoute>
+        }
+      />
+      import {SignIn} from "@clerk/clerk-react";
+      <Route
+        path="/sign-in"
+        element={
+          <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <SignIn />
+          </div>
+        }
+      />
     </Routes>
-  )
-}
+  );
+};
 
-export default AllRoutes
+export default AllRoutes;

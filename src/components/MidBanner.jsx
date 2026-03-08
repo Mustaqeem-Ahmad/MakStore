@@ -1,5 +1,6 @@
 import React from "react";
 import banner from "../assets/banner1.jpg";
+import { Link } from "react-router-dom";
 
 const MidBanner = () => {
   return (
@@ -8,7 +9,7 @@ const MidBanner = () => {
         className="relative max-w-7xl mx-auto rounded-2xl overflow-hidden h-130 md:h-150 bg-cover bg-center"
         style={{
           backgroundImage: `url(${banner})`,
-          backgroundAttachment: "fixed",   // ⭐ parallax effect
+          backgroundAttachment: "fixed",
         }}
       >
         {/* Overlay */}
@@ -28,14 +29,16 @@ const MidBanner = () => {
               and lifestyle products — delivered fast and with care.
             </p>
 
-            <button
-              className="bg-linear-to-r from-pink-500 to-red-500
-              px-8 py-3 rounded-xl text-white font-semibold
-              hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40
-              transition duration-300"
-            >
-              Shop Now
-            </button>
+            <Link to="/products">
+              <button
+                className="bg-linear-to-r from-pink-500 to-red-500
+                px-8 py-3 rounded-xl text-white font-semibold
+                hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40
+                transition duration-300"
+              >
+                Shop Now
+              </button>
+            </Link>
 
           </div>
 
