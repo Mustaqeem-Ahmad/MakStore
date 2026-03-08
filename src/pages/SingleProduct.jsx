@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // <-- useNavigate added
 import Loading from "../assets/Loading4.webm";
 import Breadcrum from "../components/Breadcrum";
 import { Star, Minus, Plus } from "lucide-react";
@@ -9,6 +9,7 @@ import { useCart } from "../context/CartContext";
 const SingleProduct = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const navigate = useNavigate(); // <-- Added
 
   const [singleProduct, setSingleProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,11 +19,7 @@ const SingleProduct = () => {
   const getSingleProduct = async () => {
     try {
       setLoading(true);
-
-      const res = await axios.get(
-        `https://dummyjson.com/products/${id}`
-      );
-
+      const res = await axios.get(`https://dummyjson.com/products/${id}`);
       setSingleProduct(res.data);
       setActiveImage(res.data.thumbnail);
     } catch (error) {
@@ -51,21 +48,24 @@ const SingleProduct = () => {
   }
 
   const originalPrice = Math.round(
-    singleProduct.price +
-      (singleProduct.price * singleProduct.discountPercentage) / 100
+    singleProduct.price + (singleProduct.price * singleProduct.discountPercentage) / 100
   );
+
+  // -------------------------------
+  // Buy Now Handler
+  // -------------------------------
+  const handleBuyNow = () => {
+    addToCart({ ...singleProduct, quantity }); // Add product to cart
+    navigate("/cart"); // Redirect to cart page
+  };
 
   return (
     <div className="px-4 pb-16 bg-gray-50">
-
       <Breadcrum title={singleProduct.title} />
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 mt-8">
-
         {/* LEFT SIDE - IMAGE */}
-
         <div className="flex flex-col gap-4 sticky top-24 h-fit">
-
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <img
               src={activeImage}
@@ -75,9 +75,7 @@ const SingleProduct = () => {
           </div>
 
           {/* Image Gallery */}
-
           <div className="flex gap-3">
-
             {singleProduct.images?.map((img, index) => (
               <img
                 key={index}
@@ -86,124 +84,81 @@ const SingleProduct = () => {
                 className="w-20 h-20 object-cover rounded-lg cursor-pointer border hover:border-red-500"
               />
             ))}
-
           </div>
         </div>
 
         {/* RIGHT SIDE */}
-
         <div className="flex flex-col gap-6">
-
-          <h1 className="text-3xl font-bold text-gray-800">
-            {singleProduct.title}
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800">{singleProduct.title}</h1>
 
           <div className="text-gray-500">
-            {singleProduct.brand?.toUpperCase()} /{" "}
-            {singleProduct.category?.toUpperCase()}
+            {singleProduct.brand?.toUpperCase()} / {singleProduct.category?.toUpperCase()}
           </div>
 
           {/* Rating */}
-
           <div className="flex items-center gap-2 text-yellow-500">
-
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
                 size={18}
-                fill={
-                  i < Math.round(singleProduct.rating)
-                    ? "currentColor"
-                    : "none"
-                }
+                fill={i < Math.round(singleProduct.rating) ? "currentColor" : "none"}
               />
             ))}
-
-            <span className="text-gray-600 text-sm">
-              ({singleProduct.rating})
-            </span>
-
+            <span className="text-gray-600 text-sm">({singleProduct.rating})</span>
           </div>
 
           {/* Price */}
-
           <div className="flex items-center gap-4">
-
-            <span className="text-3xl font-bold text-red-500">
-              ${singleProduct.price}
-            </span>
-
-            <span className="line-through text-gray-500">
-              ${originalPrice}
-            </span>
-
+            <span className="text-3xl font-bold text-red-500">${singleProduct.price}</span>
+            <span className="line-through text-gray-500">${originalPrice}</span>
             <span className="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
               {Math.round(singleProduct.discountPercentage)}% OFF
             </span>
-
           </div>
 
           {/* Stock */}
-
           <div className="text-green-600 font-medium">
-            {singleProduct.stock > 0
-              ? `In Stock (${singleProduct.stock})`
-              : "Out of Stock"}
+            {singleProduct.stock > 0 ? `In Stock (${singleProduct.stock})` : "Out of Stock"}
           </div>
 
           {/* Description */}
-
-          <p className="text-gray-600 leading-relaxed">
-            {singleProduct.description}
-          </p>
+          <p className="text-gray-600 leading-relaxed">{singleProduct.description}</p>
 
           {/* Quantity */}
-
           <div className="flex items-center gap-4">
-
             <span className="font-medium">Quantity</span>
-
             <div className="flex items-center border rounded-lg">
-
               <button
-                onClick={() =>
-                  quantity > 1 && setQuantity(quantity - 1)
-                }
+                onClick={() => quantity > 1 && setQuantity(quantity - 1)}
                 className="px-3 py-2 hover:bg-gray-100"
               >
                 <Minus size={18} />
               </button>
-
               <span className="px-4">{quantity}</span>
-
               <button
                 onClick={() => setQuantity(quantity + 1)}
                 className="px-3 py-2 hover:bg-gray-100"
               >
                 <Plus size={18} />
               </button>
-
             </div>
-
           </div>
 
           {/* Buttons */}
-
           <div className="flex gap-4">
-
             <button
-              onClick={() =>
-                addToCart({ ...singleProduct, quantity })
-              }
+              onClick={() => addToCart({ ...singleProduct, quantity })}
               className="bg-linear-to-r from-pink-500 to-red-500 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transition"
             >
               Add to Cart
             </button>
 
-            <button className="border border-gray-300 px-8 py-3 rounded-xl hover:bg-gray-100 transition">
+            <button
+              onClick={handleBuyNow} // <-- Updated
+              className="bg-linear-to-r from-green-400 to-blue-500 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transform transition-all shadow-lg"
+            >
               Buy Now
             </button>
-
           </div>
         </div>
       </div>
